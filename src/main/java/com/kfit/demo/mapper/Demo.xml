@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.kfit.demo.mapper.DemoMapper">
+	
+	<!-- 编写insert 语句. -->
+	<insert id="save" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+		insert into demo(name) values(#{name})
+	</insert>
+	
+	<!-- 修改... -->
+	<update id="update">
+		update demo set name = #{name} where id=#{id}
+	</update>
+	
+	<!-- update demo set name = ? where id = ? -->
+	<update id="update2">
+		update demo 
+			<set>
+				<if test="name != null and name != '' ">
+					name = #{name},					
+				</if>
+				<if test="email != null and email != '' ">
+					email = #{email},					
+				</if>
+			</set>
+			where id = #{id}
+	</update>
+	
+	<!-- 删除. -->
+	<delete id="delete">
+		delete from demo where id = #{id}
+	</delete>
+	
+	<resultMap type="com.kfit.demo.bean.Demo" id="baseRM">
+		<id property="id" column="id"></id>
+		<result property="name" column="name"/>
+	</resultMap>
+	
+	<!-- 查询全部. -->
+	<select id="selectAll" resultMap="baseRM">
+		select *from demo
+	</select>
+	
+	
+	<!-- 根据id进行查询. -->
+	<select id="selectById" resultMap="baseRM">
+		select *from demo where id=#{id}
+	</select>
+	
+	<!-- 假设 name = null的，那么会出现sql语句有问题：
+		select *from demo where 1=1 and email = ?
+	 -->
+	<select id="select1" resultMap="baseRM">
+		select *from demo 
+			<where>
+				<if test="name != null and name !='' ">
+					and name = #{name} 
+				</if> 
+				<if test="email != null and email != '' ">
+					and email = #{email}
+				</if> 
+			</where>
+	</select>
+	
+	<select id="select3" resultMap="baseRM">
+      	select *from demo
+      		<where>
+      			<choose>
+      				<when test="name != null and name != ''">
+      					name = #{name}	
+      				</when>
+      				<when test="email != null and email != ''">
+	      				and email=#{email}
+	      			</when>
+	      			<otherwise>
+	      				
+	      			</otherwise>
+      			</choose>
+      		</where>
+    </select>
+    
+    <select id="select5" resultMap="baseRM">
+      	select *from demo where id in
+      		<foreach collection="list" item="id" open="(" separator="," close=")">
+      			#{id}
+      		</foreach>
+	</select>
+
+	<select id="YYW_AddHZ" statementType="CALLABLE">
+      {call YYW_AddHZ()}
+  </select>
+    
+	
+</mapper>
